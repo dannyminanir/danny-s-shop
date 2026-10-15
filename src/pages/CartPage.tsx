@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/cart-context";
 import { useToast } from "../context/toast-context";
 import Button from "../components/Button";
@@ -14,6 +14,7 @@ export default function CartPage() {
   const { cart, loading, updateQuantity, removeFromCart, clearCart } = useCart();
   const { showToast } = useToast();
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const navigate = useNavigate();
 
   if (loading && cart.items.length === 0) return <PageLoader />;
 
@@ -118,9 +119,9 @@ export default function CartPage() {
             </div>
           </dl>
 
-          {/* Checkout is not part of the backend yet, so we are honest about it */}
+          {/* FIXED: Now routes dynamically to your real mobile money payment interface page */}
           <Button
-            onClick={() => showToast("Checkout is coming soon", "info")}
+            onClick={() => navigate("/checkout")}
             className="mt-6 w-full py-3"
           >
             Proceed to checkout
