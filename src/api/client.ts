@@ -1,12 +1,15 @@
 import axios from "axios";
 
-// "/api" is forwarded to the Render backend by the Vite proxy (development)
-// and by the rewrite rule in vercel.json (production).
+// Requests stay same-origin and are forwarded to the backend by Vite and Vercel.
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "/api",
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Before every request, attach the saved token (if the user is logged in)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -15,9 +18,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// If the server says our token is no longer valid (expired or logged out), clear the session
-// and send the user to the login page. Login requests are skipped because a wrong
-// password also returns 401 and must just show an error message.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -33,10 +33,13 @@ api.interceptors.response.use(
   }
 );
 
-// Turns any error into a readable message, e.g. "Invalid email or password"
+export const apiClient = api;
+
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message ?? error.message;
   }
   return "Something went wrong";
 };
+
+export default apiClient;

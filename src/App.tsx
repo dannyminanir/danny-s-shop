@@ -13,11 +13,17 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
+// New checkout page addition
+import CheckoutPage from "./pages/CheckoutPage";
+
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminLayout from "./pages/admin/AdminLayout";
 import DashboardPage from "./pages/admin/DashboardPage";
 import ProductsPage from "./pages/admin/ProductsPage";
 import ProductFormPage from "./pages/admin/ProductFormPage";
+
+// New admin orders list dashboard page addition
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 
 export default function App() {
   return (
@@ -36,6 +42,7 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
@@ -51,6 +58,7 @@ export default function App() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/new" element={<ProductFormPage />} />
           <Route path="products/:id/edit" element={<ProductFormPage />} />
+          <Route path="orders" element={<AdminOrdersPage />} />
         </Route>
       </Route>
     </Routes>
