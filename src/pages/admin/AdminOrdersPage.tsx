@@ -1,76 +1,131 @@
-import { useState, useEffect } from "react";
-import { apiClient } from "../../api/client";
+import { useEffect, useState } from "react";
+import { fetchAdminOrders, updateAdminOrderStatusRequest } from "../../api/admin";
+import { getErrorMessage } from "../../api/client";
+import PageLoader from "../../components/PageLoader";
+import { useToast } from "../../context/toast-context";
+import type { AdminOrder, AdminOrderStatus } from "../../types";
+import { formatPrice } from "../../utils/format";
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<any[]>([]);
-  const [statusFilter, setStatusFilter] = useState("");
-
-  const fetchAdminOrdersLog = () => {
-    const params = statusFilter ? { status: statusFilter } : {};
-    apiClient.get("/admin/orders", { params })
-      .then((res) => setOrders(res.data.orders || []))
-      .catch((err) => console.error("Error looking up order logs", err));
-  };
+  const { showToast } = useToast();
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [statusFilter, setStatusFilter] = useState<"" | AdminOrderStatus>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAdminOrdersLog();
+    let isCurrentRequest = true;
+    setLoading(true);
+    setError("");
+
+    fetchAdminOrders(statusFilter || undefined)
+      .then((response) => {
+        if (isCurrentRequest) setOrders(response.orders);
+      })
+      .catch((err: unknown) => {
+        if (isCurrentRequest) setError(getErrorMessage(err));
+      })
+      .finally(() => {
+        if (isCurrentRequest) setLoading(false);
+      });
+
+    return () => {
+      isCurrentRequest = false;
+    };
   }, [statusFilter]);
 
-  const handleStatusOverride = async (id: string, state: "completed" | "failed") => {
+  const handleStatusOverride = async (order: AdminOrder, status: "completed" | "failed") => {
+    setUpdatingOrderId(order._id);
     try {
-      await apiClient.patch(`/admin/orders/${id}/status`, { paymentStatus: state });
-      fetchAdminOrdersLog(); // Refresh table view parameters
-    } catch (err) {
-      console.error("Status override failed", err);
+      await updateAdminOrderStatusRequest(order._id, status);
+      const response = await fetchAdminOrders(statusFilter || undefined);
+      setOrders(response.orders);
+      showToast(`Order ${order._id} marked ${status}`);
+    } catch (err: unknown) {
+      showToast(getErrorMessage(err), "error");
+    } finally {
+      setUpdatingOrderId(null);
     }
   };
 
+  if (loading) return <PageLoader />;
+
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h2 style={{ color: "#2c5282" }}>Customer Purchases & Order Log Dashboard</h2>
-      
-      <div style={{ marginBottom: "20px" }}>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e0" }}>
-          <option value="">All Transactions</option>
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Orders</h1>
+          <p className="text-sm text-slate-500">Manage customer payments</p>
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as "" | AdminOrderStatus)}
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          aria-label="Filter orders by payment status"
+        >
+          <option value="">All statuses</option>
           <option value="pending">Pending</option>
           <option value="completed">Completed</option>
           <option value="failed">Failed</option>
         </select>
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#edf2f7", textAlign: "left", borderBottom: "2px solid #cbd5e0" }}>
-            <th style={{ padding: "12px" }}>Order ID</th>
-            <th style={{ padding: "12px" }}>Shopper</th>
-            <th style={{ padding: "12px" }}>Total Amount</th>
-            <th style={{ padding: "12px" }}>Status State</th>
-            <th style={{ padding: "12px" }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order._id} style={{ borderBottom: "1px solid #edf2f7" }}>
-              <td style={{ padding: "12px", fontFamily: "monospace", fontSize: "13px" }}>{order._id}</td>
-              <td style={{ padding: "12px" }}>{order.user?.name} ({order.user?.email})</td>
-              <td style={{ padding: "12px", fontWeight: "bold" }}>{order.totalAmount?.toLocaleString()} RWF</td>
-              <td style={{ padding: "12px" }}>
-                <span style={{ padding: "4px 8px", borderRadius: "12px", fontSize: "12px", fontWeight: "bold", backgroundColor: order.paymentStatus === "completed" ? "#c6f6d5" : order.paymentStatus === "pending" ? "#feebc8" : "#fed7d7", color: order.paymentStatus === "completed" ? "#22543d" : order.paymentStatus === "pending" ? "#744210" : "#742a2a" }}>
-                  {order.paymentStatus}
-                </span>
-              </td>
-              <td style={{ padding: "12px" }}>
-                {order.paymentStatus === "pending" && (
-                  <>
-                    <button onClick={() => handleStatusOverride(order._id, "completed")} style={{ padding: "6px 12px", backgroundColor: "#38a169", color: "#fff", border: "none", borderRadius: "4px", marginRight: "6px", cursor: "pointer" }}>Approve</button>
-                    <button onClick={() => handleStatusOverride(order._id, "failed")} style={{ padding: "6px 12px", backgroundColor: "#e53e3e", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer" }}>Cancel</button>
-                  </>
-                )}
-              </td>
+      {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+
+      <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full min-w-[640px] text-left text-sm">
+          <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <tr>
+              <th className="px-4 py-3">Order ID</th>
+              <th className="px-4 py-3">Customer</th>
+              <th className="px-4 py-3">Total</th>
+              <th className="px-4 py-3">Payment status</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {orders.map((order) => (
+              <tr key={order._id}>
+                <td className="px-4 py-3 font-mono text-xs">{order._id}</td>
+                <td className="px-4 py-3">
+                  <div className="font-medium">{order.user?.name || "Unknown customer"}</div>
+                  {order.user?.email && <div className="text-xs text-slate-500">{order.user.email}</div>}
+                </td>
+                <td className="px-4 py-3 font-medium">{formatPrice(order.totalAmount)}</td>
+                <td className="px-4 py-3">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-slate-700">
+                    {order.paymentStatus}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  {order.paymentStatus === "pending" && (
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => handleStatusOverride(order, "completed")}
+                        disabled={updatingOrderId !== null}
+                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleStatusOverride(order, "failed")}
+                        disabled={updatingOrderId !== null}
+                        className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!error && orders.length === 0 && (
+          <p className="px-4 py-12 text-center text-sm text-slate-500">No orders match this status.</p>
+        )}
+      </div>
     </div>
   );
 }

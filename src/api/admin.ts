@@ -1,5 +1,11 @@
 import { api } from "./client";
-import type { AdminProductListResponse, DashboardResponse, Product } from "../types";
+import type {
+  AdminOrderListResponse,
+  AdminOrderStatus,
+  AdminProductListResponse,
+  DashboardResponse,
+  Product,
+} from "../types";
 
 export const fetchDashboard = async () => (await api.get<DashboardResponse>("/admin/dashboard")).data;
 
@@ -21,4 +27,15 @@ export const toggleProductVisibilityRequest = async (id: string) =>
 
 export const deleteProductRequest = async (id: string) => {
   await api.delete(`/admin/products/${id}`);
+};
+
+export const fetchAdminOrders = async (status?: AdminOrderStatus, page = 1, limit = 10) =>
+  (
+    await api.get<AdminOrderListResponse>("/admin/orders", {
+      params: { status, page, limit },
+    })
+  ).data;
+
+export const updateAdminOrderStatusRequest = async (orderId: string, paymentStatus: AdminOrderStatus) => {
+  await api.patch(`/admin/orders/${orderId}/status`, { paymentStatus });
 };

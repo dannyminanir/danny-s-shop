@@ -80,3 +80,22 @@ export interface AdminProductListResponse {
   count: number;
   products: Product[];
 }
+
+export type AdminOrderStatus = "pending" | "completed" | "failed";
+
+export interface AdminOrder {
+  _id: string;
+  user?: {
+    name?: string;
+    email?: string;
+  };
+  totalAmount: number;
+  paymentStatus: AdminOrderStatus;
+}
+
+export interface AdminOrderListResponse {
+  total: number;
+  page: number;
+  pages: number;
+  orders: AdminOrder[];
+}
