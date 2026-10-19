@@ -104,7 +104,7 @@ export default function ProductFormPage() {
       </Link>
       <h1 className="mt-2 text-2xl font-bold tracking-tight">{isEditing ? "Edit product" : "Add product"}</h1>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         {error && <p className="rounded bg-red-50 p-2 text-sm text-red-600">{error}</p>}
 
         <TextInput id="name" label="Product name" required value={name} onChange={(e) => setName(e.target.value)} />
@@ -159,11 +159,11 @@ export default function ProductFormPage() {
           )}
         </div>
 
-        <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
-          <Button variant="secondary" onClick={() => navigate("/admin/products")} disabled={saving}>
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+          <Button className="w-full sm:w-auto" variant="secondary" onClick={() => navigate("/admin/products")} disabled={saving}>
             Cancel
           </Button>
-          <Button type="submit" loading={saving}>
+          <Button className="w-full sm:w-auto" type="submit" loading={saving}>
             {saving ? "Saving..." : isEditing ? "Save changes" : "Create product"}
           </Button>
         </div>

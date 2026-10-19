@@ -55,7 +55,7 @@ export default function DashboardPage() {
       </div>
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-4 sm:px-5">
           <h2 className="font-semibold">Recently added products</h2>
           <Link to="/admin/products" className="text-sm font-medium text-indigo-600 hover:underline">
             View all
@@ -67,18 +67,18 @@ export default function DashboardPage() {
         ) : (
           <ul className="divide-y divide-slate-100">
             {recentProducts.map((product) => (
-              <li key={product._id} className="flex items-center gap-4 px-5 py-3">
+              <li key={product._id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap sm:gap-4 sm:px-5">
                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                   {product.imageUrl && <img src={product.imageUrl} alt="" className="h-full w-full object-cover" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{product.name}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="break-words font-medium sm:truncate">{product.name}</p>
+                  <p className="break-words text-xs text-slate-500">
                     {product.category} · added {formatDate(product.createdAt)}
                   </p>
                 </div>
                 <ProductStatusBadge isHidden={product.isHidden} />
-                <p className="w-28 text-right font-semibold">{formatPrice(product.price)}</p>
+                <p className="w-full text-right font-semibold sm:w-28">{formatPrice(product.price)}</p>
               </li>
             ))}
           </ul>

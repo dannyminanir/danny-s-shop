@@ -61,7 +61,7 @@ export default function AdminOrdersPage() {
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value as "" | AdminOrderStatus)}
-          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none sm:w-auto"
           aria-label="Filter orders by payment status"
         >
           <option value="">All statuses</option>
@@ -73,7 +73,50 @@ export default function AdminOrdersPage() {
 
       {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="mt-6 space-y-3 md:hidden">
+        {orders.map((order) => (
+          <article key={order._id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="break-all font-mono text-xs text-slate-500">{order._id}</p>
+            <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="break-words font-medium">{order.user?.name || "Unknown customer"}</p>
+                {order.user?.email && <p className="break-all text-xs text-slate-500">{order.user.email}</p>}
+              </div>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-slate-700">
+                {order.paymentStatus}
+              </span>
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+              <span className="font-semibold">{formatPrice(order.totalAmount)}</span>
+              {order.paymentStatus === "pending" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleStatusOverride(order, "completed")}
+                    disabled={updatingOrderId !== null}
+                    className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleStatusOverride(order, "failed")}
+                    disabled={updatingOrderId !== null}
+                    className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+        {!error && orders.length === 0 && (
+          <p className="rounded-2xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">
+            No orders match this status.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
@@ -87,7 +130,7 @@ export default function AdminOrdersPage() {
           <tbody className="divide-y divide-slate-100">
             {orders.map((order) => (
               <tr key={order._id}>
-                <td className="px-4 py-3 font-mono text-xs">{order._id}</td>
+                <td className="break-all px-4 py-3 font-mono text-xs">{order._id}</td>
                 <td className="px-4 py-3">
                   <div className="font-medium">{order.user?.name || "Unknown customer"}</div>
                   {order.user?.email && <div className="text-xs text-slate-500">{order.user.email}</div>}

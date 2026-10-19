@@ -90,7 +90,7 @@ export default function ProductsPage() {
       {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
 
       {/* Search + filter */}
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <input
           type="search"
           placeholder="Search by name or category..."
@@ -101,7 +101,7 @@ export default function ProductsPage() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as StatusFilter)}
-          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none sm:w-auto"
         >
           <option value="all">All products</option>
           <option value="visible">Visible only</option>
@@ -110,7 +110,58 @@ export default function ProductsPage() {
       </div>
 
       {/* Table */}
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="mt-4 space-y-3 md:hidden">
+        {visibleRows.map((product) => (
+          <article key={product._id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                {product.imageUrl && <img src={product.imageUrl} alt="" className="h-full w-full object-cover" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="break-words font-medium">{product.name}</h2>
+                <p className="break-words text-sm text-slate-500">{product.category}</p>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
+              <span className="font-semibold">{formatPrice(product.price)}</span>
+              <ProductStatusBadge isHidden={product.isHidden} />
+            </div>
+            <div className="mt-3 flex justify-end gap-1 border-t border-slate-100 pt-2">
+              <button
+                onClick={() => handleToggleVisibility(product)}
+                title={product.isHidden ? "Show in shop" : "Hide from shop"}
+                aria-label={product.isHidden ? "Show in shop" : "Hide from shop"}
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+              >
+                {product.isHidden ? <EyeIcon className="h-5 w-5" /> : <EyeOffIcon className="h-5 w-5" />}
+              </button>
+              <Link
+                to={`/admin/products/${product._id}/edit`}
+                title="Edit"
+                aria-label="Edit product"
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+              >
+                <PencilIcon className="h-5 w-5" />
+              </Link>
+              <button
+                onClick={() => setProductToDelete(product)}
+                title="Delete"
+                aria-label="Delete product"
+                className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            </div>
+          </article>
+        ))}
+        {visibleRows.length === 0 && (
+          <p className="rounded-2xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">
+            No products match your search.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
