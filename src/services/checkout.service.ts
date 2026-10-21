@@ -1,12 +1,22 @@
 import { apiClient } from "../api/client";
 
+export interface MomoPaymentInitResponse {
+  message?: string;
+  orderId: string;
+  trackingId?: string;
+}
+
+export interface PaymentStatusResponse {
+  paymentStatus: "pending" | "completed" | "failed";
+}
+
 export const checkoutService = {
   initiateMomoPayment: async (phoneNumber: string) => {
-    const response = await apiClient.post("/checkout/momo", { phoneNumber });
-    return response.data; // Returns: { message, orderId, trackingId }
+    const response = await apiClient.post<MomoPaymentInitResponse>("/checkout/momo", { phoneNumber });
+    return response.data;
   },
-  verifyPaymentStatus: async (orderId: string) => {
-    const response = await apiClient.get(`/checkout/status/${orderId}`);
-    return response.data; // Returns: { paymentStatus: 'pending' | 'completed' | 'failed' }
+  verifyPaymentStatus: async (orderId: string, signal?: AbortSignal) => {
+    const response = await apiClient.get<PaymentStatusResponse>(`/checkout/status/${orderId}`, { signal });
+    return response.data;
   }
 };

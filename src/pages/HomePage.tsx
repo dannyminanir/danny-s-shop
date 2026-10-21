@@ -97,7 +97,8 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero banner */}
-      <section className="bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-600 text-white">
+      {/* <section className="bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-600 text-white"> */}
+      <section className="bg-blue-400 flex flex-col items-center justify-center text-center sm:flex-row sm:justify-between">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-widest text-indigo-200">Welcome to Danny's Shop</p>
           <h1 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -112,6 +113,13 @@ export default function HomePage() {
           >
             Shop now
           </a>
+        </div>
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 flex flex-wrap justify-center gap-4">
+   <img
+  src="/Danny Logo.png"
+  alt="Danny's Shop Logo"
+  className="mx-auto h-auto w-full max-w-md object-contain"
+/>
         </div>
       </section>
 

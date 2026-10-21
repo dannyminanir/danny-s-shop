@@ -57,9 +57,13 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-indigo-600 hover:underline">
+       
+
+            <Link to="/login" className="text-blue-600 hover:underline cursor-pointer">
             Log in
-          </Link>
+          </Link> 
+         
+         
         </p>
       </form>
     </AuthCard>
