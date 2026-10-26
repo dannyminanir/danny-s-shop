@@ -115,11 +115,11 @@ export default function HomePage() {
           </a>
         </div>
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 flex flex-wrap justify-center gap-4">
-   <img
-  src="/Danny Logo.png"
-  alt="Danny's Shop Logo"
-  className="mx-auto h-auto w-full max-w-md object-contain"
-/>
+          <img
+            src="/Danny Logo.png"
+            alt="Danny's Shop Logo"
+            className="mx-auto h-auto w-full max-w-md object-contain"
+          />
         </div>
       </section>
 

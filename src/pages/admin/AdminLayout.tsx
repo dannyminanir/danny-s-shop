@@ -9,20 +9,19 @@ export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-      isActive ? "bg-slate-700 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"
+    `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? "bg-slate-700 text-white" : "text-slate-300 hover:bg-slate-800 hover:text-white"
     }`;
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
-      <header className="bg-slate-900">
+      <header className="bg-slate-600">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3 sm:gap-6">
             <Link to="/admin" className="flex min-w-0 items-center gap-2 text-white" onClick={closeMobileMenu}>
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600">
-                <ShopBagIcon />
+              <span className="flex h-20 w-20 items-center justify-center rounded-sm text-white">
+                <img src="Danny Logo.png" alt="" />
               </span>
               <span className="truncate font-bold">Danny's Shop Admin</span>
             </Link>
